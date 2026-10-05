@@ -1,1 +1,128 @@
-67
+#include <graphics.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <conio.h>
+#include <math.h>
+#include <dos.h>
+
+void main() {
+    int shapeChoice, size;
+    float speed;
+
+    // 1. Sleek Console Menu Configuration
+    clrscr();
+    printf("==================================================\n");
+    printf("   CGR MICRO-PROJECT: 2D TRANSFORMATION STUDIO\n");
+    printf("==================================================\n\n");
+    printf("Select Master Shape:\n");
+    printf("  [1] Equilateral Triangle\n");
+    printf("  [2] Rotating Square\n");
+    printf("  [3] Geometric Star\n");
+    printf("Enter choice (1-3): ");
+    scanf("%d", &shapeChoice);
+
+    printf("Enter size/radius (Recommended: 70 to 120): ");
+    scanf("%d", &size);
+
+    printf("Enter rotation speed multiplier (e.g., 1.0 to 2.5): ");
+    scanf("%f", &speed);
+
+    printf("\n[+] Compiling Matrices & Launching Graphics Window...");
+    getch();
+
+    // 2. Initialize graphics driver and mode
+    int gd = DETECT, gm;
+    initgraph(&gd, &gm, "C:\\TurboC3\\BGI");
+
+    float angle = 0.0;
+    int cx = 320, cy = 240; // Screen Center
+
+    // 3. Main Real-Time Graphics Rendering Loop
+    while (!kbhit()) {
+        cleardevice();
+
+        // --- UI FRAME & DECORATION ---
+        // Outer border frame
+        setcolor(WHITE);
+        rectangle(10, 10, 630, 470);
+        rectangle(14, 14, 626, 466);
+
+        // Header Title Banner
+        setfillstyle(SOLID_FILL, BLUE);
+        bar(15, 15, 625, 45);
+        setcolor(WHITE);
+        settextstyle(DEFAULT_FONT, HORIZ_DIR, 1);
+        outtextxy(185, 24, "INTERACTIVE 2D TRANSFORMATION ENGINE");
+
+        // Center Coordinate Crosshair (Subtle grid lines)
+        setcolor(DARKGRAY);
+        line(cx, 50, cx, 430);
+        line(50, cy, 590, cy);
+
+        // Footer Instructions Panel
+        setcolor(LIGHTGRAY);
+        outtextxy(30, 445, "Status: Rendering Active Matrix | Press ANY KEY to Exit");
+
+        // --- RENDER SELECTED SHAPE WITH ROTATION MATRIX ---
+        if (shapeChoice == 1) {
+            // Triangle (3 Vertices)
+            int n = 3;
+            int x[3], y[3];
+            for (int i = 0; i < n; i++) {
+                float theta = angle + i * (2 * 3.14159 / n);
+                x[i] = cx + (int)(size * cos(theta));
+                y[i] = cy + (int)(size * sin(theta));
+            }
+            // Draw filled/outlined triangle with bright colors
+            setcolor(YELLOW);
+            line(x[0], y[0], x[1], y[1]);
+            line(x[1], y[1], x[2], y[2]);
+            line(x[2], y[2], x[0], y[0]);
+        }
+        else if (shapeChoice == 2) {
+            // Square (4 Vertices with 45-degree angle offset)
+            int n = 4;
+            int x[4], y[4];
+            for (int i = 0; i < n; i++) {
+                float theta = angle + i * (2 * 3.14159 / n) + (3.14159 / 4);
+                x[i] = cx + (int)(size * cos(theta));
+                y[i] = cy + (int)(size * sin(theta));
+            }
+            setcolor(LIGHTGREEN);
+            line(x[0], y[0], x[1], y[1]);
+            line(x[1], y[1], x[2], y[2]);
+            line(x[2], y[2], x[3], y[3]);
+            line(x[3], y[3], x[0], y[0]);
+        }
+        else {
+            // Geometric Star (5-Point Star using vertex step logic)
+            int n = 5;
+            int x[5], y[5];
+            for (int i = 0; i < n; i++) {
+                float theta = angle + i * (2 * 3.14159 / n);
+                x[i] = cx + (int)(size * cos(theta));
+                y[i] = cy + (int)(size * sin(theta));
+            }
+            setcolor(LIGHTCYAN);
+            // Connecting star vertices in an interlaced pattern (0->2->4->1->3->0)
+            line(x[0], y[0], x[2], y[2]);
+            line(x[2], y[2], x[4], y[4]);
+            line(x[4], y[4], x[1], y[1]);
+            line(x[1], y[1], x[3], y[3]);
+            line(x[3], y[3], x[0], y[0]);
+        }
+
+        // Increment rotation angle based on user speed input
+        angle += 0.025 * speed;
+        if (angle > 6.28) {
+            angle = 0; // Reset full circle loop
+        }
+
+        // Frame delay for smooth motion
+        delay(25);
+    }
+
+    getch();
+    closegraph();
+//67
+}
