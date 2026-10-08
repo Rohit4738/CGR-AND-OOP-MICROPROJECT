@@ -1,1 +1,203 @@
-6767
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <iomanip>
+
+using namespace std;
+
+// Base Class demonstrating Inheritance
+class Person {
+protected:
+    string name;
+    int age;
+    string contact;
+
+public:
+    // Constructor
+    Person() {
+        name = "";
+        age = 0;
+        contact = "";
+    }
+
+    void getPersonData() {
+        cout << "Enter Name: ";
+        cin.ignore();
+        getline(cin, name);
+        cout << "Enter Age: ";
+        cin >> age;
+        cout << "Enter Contact Number: ";
+        cin >> contact;
+    }
+
+    void showPersonData() const {
+        cout << "Name    : " << name << endl;
+        cout << "Age     : " << age << endl;
+        cout << "Contact : " << contact << endl;
+    }
+};
+
+// Derived Class demonstrating Encapsulation & Inheritance
+class Donor : public Person {
+private:
+    int donorID;
+    string bloodGroup;
+    string city;
+
+public:
+    Donor() {
+        donorID = 0;
+        bloodGroup = "";
+        city = "";
+    }
+
+    // Function to add donor details
+    void acceptDonorDetails() {
+        cout << "\n--- Enter Donor Information ---\n";
+        cout << "Enter Donor ID: ";
+        cin >> donorID;
+        getPersonData(); // Calling base class method
+        cout << "Enter Blood Group (e.g., A+, O-, B+): ";
+        cin >> bloodGroup;
+        cout << "Enter City: ";
+        cin >> city;
+    }
+
+    // Function to display donor details
+    void displayDonorDetails() const {
+        cout << "------------------------------------\n";
+        cout << "Donor ID    : " << donorID << endl;
+        showPersonData();
+        cout << "Blood Group : " << bloodGroup << endl;
+        cout << "City        : " << city << endl;
+        cout << "------------------------------------\n";
+    }
+
+    // Getter for blood group search
+    string getBloodGroup() const {
+        return bloodGroup;
+    }
+
+    int getDonorID() const {
+        return donorID;
+    }
+
+    // Save donor record to file (File Handling)
+    void saveToFile() const {
+        ofstream outFile("blood_bank_data.txt", ios::app);
+        if (outFile.is_open()) {
+            outFile << donorID << " " << name << " " << age << " " 
+                    << contact << " " << bloodGroup << " " << city << endl;
+            outFile.close();
+        } else {
+            cout << "Error opening file for writing!\n";
+        }
+    }
+};
+
+// Blood Bank Manager Class (Managing collections of donors)
+class BloodBankManager {
+public:
+    void addDonor() {
+        Donor d;
+        d.acceptDonorDetails();
+        d.saveToFile();
+        cout << "\n[Success] Donor added and saved to file successfully!\n";
+    }
+
+    void viewAllDonors() {
+        ifstream inFile("blood_bank_data.txt");
+        if (!inFile) {
+            cout << "\nNo donor records found!\n";
+            return;
+        }
+
+        int id, age;
+        string name, contact, bGroup, city;
+
+        cout << "\n========================================\n";
+        cout << "          ALL REGISTERED DONORS         \n";
+        cout << "========================================\n";
+        
+        while (inFile >> id >> name >> age >> contact >> bGroup >> city) {
+            cout << "Donor ID    : " << id << endl;
+            cout << "Name        : " << name << endl;
+            cout << "Age         : " << age << endl;
+            cout << "Contact     : " << contact << endl;
+            cout << "Blood Group : " << bGroup << endl;
+            cout << "City        : " << city << endl;
+            cout << "----------------------------------------\n";
+        }
+        inFile.close();
+    }
+
+    void searchByBloodGroup() {
+        string targetGroup;
+        cout << "\nEnter Blood Group to Search (e.g., A+, O+): ";
+        cin >> targetGroup;
+
+        ifstream inFile("blood_bank_data.txt");
+        if (!inFile) {
+            cout << "\nNo records found to search!\n";
+            return;
+        }
+
+        int id, age;
+        string name, contact, bGroup, city;
+        bool found = false;
+
+        cout << "\n--- Search Results for Blood Group: " << targetGroup << " ---\n";
+        while (inFile >> id >> name >> age >> contact >> bGroup >> city) {
+            if (bGroup == targetGroup) {
+                cout << "Donor ID    : " << id << endl;
+                cout << "Name        : " << name << endl;
+                cout << "Contact     : " << contact << endl;
+                cout << "City        : " << city << endl;
+                cout << "----------------------------------------\n";
+                found = true;
+            }
+        }
+        if (!found) {
+            cout << "No donors found with blood group " << targetGroup << ".\n";
+        }
+        inFile.close();
+    }
+};
+
+// Main Function
+int main() {
+    BloodBankManager manager;
+    int choice;
+
+    do {
+        cout << "\n========================================\n";
+        cout << "   BLOOD BANK MANAGEMENT SYSTEM (OOP)   \n";
+        cout << "========================================\n";
+        cout << "1. Add New Donor\n";
+        cout << "2. View All Donors\n";
+        cout << "3. Search Donors by Blood Group\n";
+        cout << "4. Exit\n";
+        cout << "----------------------------------------\n";
+        cout << "Enter your choice (1-4): ";
+        cin >> choice;
+
+        switch (choice) {
+            case 1:
+                manager.addDonor();
+                break;
+            case 2:
+                manager.viewAllDonors();
+                break;
+            case 3:
+                manager.searchByBloodGroup();
+                break;
+            case 4:
+                cout << "\nThank you for using Blood Bank System. Exiting...\n";
+                break;
+            default:
+                cout << "\nInvalid choice! Please try again.\n";
+        }
+    } while (choice != 4);
+
+    return 0;
+}
